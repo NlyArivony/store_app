@@ -1,6 +1,6 @@
 import requests
 
-ENDPOINT = "http://localhost:5000/"
+ENDPOINT = "http://localhost:5005/"
 
 
 def test_can_call_endpoint():

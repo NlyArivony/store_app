@@ -2,3 +2,5 @@
     -> docker build -t rest-apis-flask-python .
 - run the docker image :
     -> docker run -p  5005:5000 rest-apis-flask-python
+- to solve the problem while updating the code and rerun docker build (use a volume):
+    -> docker run -dp  5005:5000 -w /app -v "$(pwd):/app" rest-apis-flask-python
