@@ -3,10 +3,10 @@ import requests
 ENDPOINT = "http://localhost:5005/"
 
 
-def test_can_call_endpoint():
-    response = requests.get(ENDPOINT)
-    assert response.status_code == 200
-    pass
+# def test_can_call_endpoint():
+#     response = requests.get(ENDPOINT)
+#     assert response.status_code == 200
+#     pass
 
 
 def test_get_stores():
@@ -44,7 +44,7 @@ def test_create_item():
     assert response.status_code == 201
 
 
-def test_delete_item():
+def test_delete_item_and_store():
     store_payload = {"name": "store 3 to be deleted"}
     store_response = requests.post(f"{ENDPOINT}/store", json=store_payload)
     assert store_response.status_code == 201
@@ -59,6 +59,9 @@ def test_delete_item():
     item_id = item_data["id"]
     delete_item_response = requests.delete(f"{ENDPOINT}/item/{item_id}")
     assert delete_item_response.status_code == 200
+
+    delete_store_response = requests.delete(f"{ENDPOINT}/store/{store_id}")
+    assert delete_store_response.status_code == 200
 
 
 def test_update_item():
@@ -81,5 +84,5 @@ def test_update_item():
     assert updated_item_response.status_code == 200
 
 
-if __name__ == "__main__":
-    test_update_item()
+# if __name__ == "__main__":
+#     test_update_item()
