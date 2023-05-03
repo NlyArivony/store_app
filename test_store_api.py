@@ -1,6 +1,6 @@
 import requests
 
-ENDPOINT = "http://localhost:5005/"
+ENDPOINT = "http://localhost:5000/"
 
 
 # def test_can_call_endpoint():
@@ -82,6 +82,10 @@ def test_update_item():
         f"{ENDPOINT}/item/{item_id}", json=updated_item_payload
     )
     assert updated_item_response.status_code == 200
+
+
+# def test_delete_store_cascade():
+#     pass
 
 
 # if __name__ == "__main__":
