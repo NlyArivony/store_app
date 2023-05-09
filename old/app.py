@@ -5,8 +5,6 @@ import uuid
 
 app = Flask(__name__)
 
-# stores = [{"name": "my store", "items": [{"name": "chair", "price": 15.99}]}]
-
 
 @app.route("/")
 def hello():
@@ -126,6 +124,6 @@ def update_item(item_id):
         abort(404, message="Item not found")
 
 
-# if __name__ == "__main__":
-#     app.run()
-#     app.debug = True
+if __name__ == "__main__":
+    app.run()
+    app.debug = True

@@ -9,7 +9,7 @@ from models import TagModel, StoreModel, ItemModel
 blp = Blueprint("tags", __name__, description="Operations on tags")
 
 
-@blp.route("/store/<string:store_id>/tag")
+@blp.route("/store/<int:store_id>/tag")
 class TagsInStore(MethodView):
     @blp.response(200, TagSchema(many=True))
     def get(self, store_id):
@@ -38,7 +38,7 @@ class TagsInStore(MethodView):
         return new_tag
 
 
-@blp.route("/tag/<string:tag_id>")
+@blp.route("/tag/<int:tag_id>")
 class Tag(MethodView):
     @blp.response(200, TagSchema)
     def get(self, tag_id):
@@ -57,6 +57,7 @@ class Tag(MethodView):
         description="Returned if the tag is assigned to one or more items. In this case, the tag is not deleted.",
     )
     def delete(self, tag_id):
+        """delete a tag"""
         tag = TagModel.query.get_or_404(tag_id)
 
         if not tag.items:
@@ -69,7 +70,7 @@ class Tag(MethodView):
         )
 
 
-@blp.route("/item/<string:item_id>/tag/<string:tag_id>")
+@blp.route("/item/<int:item_id>/tag/<int:tag_id>")
 class LinkTagsToItem(MethodView):
     """class to link or unlink tag and item"""
 
