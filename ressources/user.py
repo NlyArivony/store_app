@@ -21,15 +21,9 @@ blp = Blueprint("users", __name__, description="Operations on users")
 
 @blp.route("/register/")
 class UserRegister(MethodView):
-    @jwt_required(fresh=True)
     @blp.arguments(UserSchema)
-    @blp.doc(security=[{"jwt": []}])
     def post(self, user_data):
-        """register a user if logged in user is admin"""
-        jwt = get_jwt()
-        if not jwt.get("is_admin"):
-            abort(401, message="Admin privilege required.")
-
+        """register a user"""
         if UserModel.query.filter(UserModel.username == user_data["username"]).first():
             abort(409, message=" A user with that username already exists.")
 
