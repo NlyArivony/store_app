@@ -1,10 +1,11 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from schemas import TagSchema, TagAndItemSChema
-
+from flask_jwt_extended import jwt_required
 from db import db
 from sqlalchemy.exc import SQLAlchemyError
 from models import TagModel, StoreModel, ItemModel
+
 
 blp = Blueprint("tags", __name__, description="Operations on tags")
 
@@ -18,8 +19,10 @@ class TagsInStore(MethodView):
 
         return store.tags.all()
 
+    @jwt_required(fresh=True)
     @blp.arguments(TagSchema)
     @blp.response(201, TagSchema)
+    @blp.doc(security=[{"jwt": []}])
     def post(self, tag_data, store_id):
         """Create a tag in a store"""
         # if TagModel.query.filter(
@@ -46,6 +49,7 @@ class Tag(MethodView):
         tag = TagModel.query.get_or_404(tag_id)
         return tag
 
+    @jwt_required(fresh=True)
     @blp.response(
         202,
         description="Deletes a tag if no item is tagged with it.",
@@ -56,6 +60,7 @@ class Tag(MethodView):
         400,
         description="Returned if the tag is assigned to one or more items. In this case, the tag is not deleted.",
     )
+    @blp.doc(security=[{"jwt": []}])
     def delete(self, tag_id):
         """delete a tag"""
         tag = TagModel.query.get_or_404(tag_id)
@@ -74,7 +79,9 @@ class Tag(MethodView):
 class LinkTagsToItem(MethodView):
     """class to link or unlink tag and item"""
 
+    @jwt_required(fresh=True)
     @blp.response(201, TagSchema)
+    @blp.doc(security=[{"jwt": []}])
     def post(self, item_id, tag_id):
         "link an item from a tag"
         # check if item and tag id exist
@@ -89,7 +96,9 @@ class LinkTagsToItem(MethodView):
 
         return tag
 
+    @jwt_required(fresh=True)
     @blp.response(200, TagAndItemSChema)
+    @blp.doc(security=[{"jwt": []}])
     def delete(self, item_id, tag_id):
         """unlink item from a tag"""
         # check if item and tag id exist

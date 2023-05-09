@@ -13,19 +13,17 @@ blp = Blueprint("items", __name__, description="Operations on items")
 
 @blp.route("/item/<int:item_id>")
 class Item(MethodView):
-    @jwt_required()
     @blp.response(200, ItemSchema)
-    @blp.doc(security=[{"jwt": []}])
     def get(self, item_id):
         """get item"""
         item = ItemModel.query.get_or_404(item_id)
         return item
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     @blp.response(200)
     @blp.doc(security=[{"jwt": []}])
     def delete(self, item_id):
-        """check if user is admin to perform the delete item based on item_id"""
+        """check if logged user is admin to perform the delete item based on item_id"""
         jwt = get_jwt()
         if not jwt.get("is_admin"):
             abort(401, message="Admin privilege required.")
@@ -37,7 +35,7 @@ class Item(MethodView):
 
         # raise NotImplementedError("Deleteing an item is not implemented.")
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
     @blp.doc(security=[{"jwt": []}])
@@ -60,14 +58,12 @@ class Item(MethodView):
 
 @blp.route("/item")
 class ItemList(MethodView):
-    @jwt_required()
     @blp.response(200, ItemSchema(many=True))
-    @blp.doc(security=[{"jwt": []}])
     def get(self):
         """Get all items in db"""
         return ItemModel.query.all()
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     @blp.doc(security=[{"jwt": []}])

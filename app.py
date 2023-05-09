@@ -2,12 +2,17 @@ import os
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
+
 from db import db
 import models
+
 from ressources.item import blp as ItemBlueprint
 from ressources.store import blp as StoreBlueprint
 from ressources.tag import blp as TagBlueprint
 from ressources.user import blp as UserBlueprint
+
+from blocklist import BLOCKLIST
 
 
 def create_app(db_url=None):
@@ -31,16 +36,34 @@ def create_app(db_url=None):
 
     db.init_app(app)
 
+    migrate = Migrate(app, db)
+
     api = Api(app)
 
     # create an instance of jwt manager
     app.config["JWT_SECRET_KEY"] = "208325419217662809979992809858158591106"
     jwt = JWTManager(app)
 
+    # for every access token creation
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        """check if token is in blocklist, it will return true or false"""
+        return jwt_payload["jti"] in BLOCKLIST
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        """custom msg when func check_if_token_in_blocklist return true"""
+        return (
+            jsonify(
+                {"description": "The token has been revoked.", "error": "token_revoked"}
+            ),
+            401,
+        )
+
     # add addtional information to jwt (func that run for access token creation)
     @jwt.additional_claims_loader
     def add_claims_to_jwt(identity):
-        """add addtional information to jwt for each token creation)"""
+        """add addtional information to jwt for each token creation"""
         if identity == 1:
             return {"is_admin": True}
         return {"is_admin": False}
@@ -51,6 +74,13 @@ def create_app(db_url=None):
         return (
             jsonify({"message": "The token has expired.", "error": "token_expired"}),
             401,
+        )
+
+    # need fresh token loader
+    @jwt.needs_fresh_token_loader
+    def token_not_fresh_callback(jwt_header, jwt_payload):
+        return jsonify(
+            {"description": "The token is not fresh.", "error": "fresh_token_required"}
         )
 
     @jwt.invalid_token_loader

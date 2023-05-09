@@ -4,3 +4,17 @@
     -> docker run -p  5005:5000 rest-apis-flask-python
 - to solve the problem while updating the code and rerun docker build (use a volume):
     -> docker run -dp  5005:5000 -w /app -v "$(pwd):/app" rest-apis-flask-python
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+-initialise db with flask migrate to create a migration folder:
+    -> flask db init
+
+-create the first migration:
+    -> flask db migrate
+
+-apply migration:
+    -> flask db upgrade
+
+-rollback to previous migration:
+    -> flask db downgrade
