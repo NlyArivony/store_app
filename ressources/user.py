@@ -12,31 +12,18 @@ from flask_jwt_extended import (
     get_jwt,
 )
 
+from flask import current_app
+
 from db import db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_
 from models import UserModel
 from schemas import UserSchema, UserRegisterSchema
+from task import send_user_registration_email
 
 from blocklist import BLOCKLIST
 
 blp = Blueprint("users", __name__, description="Operations on users")
-
-
-def send_simple_message(to, subject, body):
-    """Mailgun code to send mail"""
-    domain = os.getenv("MAILGUN_DOMAIN")
-    api_key = os.getenv("MAILGUN_API_KEY")
-    return requests.post(
-        f"https://api.mailgun.net/v3/{domain}/messages",
-        auth=("api", api_key),
-        data={
-            "from": f"store admin user <mailgun@{domain}>",
-            "to": [to],
-            "subject": subject,
-            "text": body,
-        },
-    )
 
 
 @blp.route("/register/")
@@ -60,10 +47,8 @@ class UserRegister(MethodView):
         db.session.add(user)
         db.session.commit()
 
-        send_simple_message(
-            to=user.email,
-            subject="successfully signed up to store flask",
-            body=f"Hi {user.username}! You have successfully signed up to the stores REST API",
+        current_app.queue.enqueue(
+            send_user_registration_email, user.email, user.username
         )
 
         return {"message": "User created successfully."}, 201

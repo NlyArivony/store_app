@@ -18,3 +18,14 @@
 
 -rollback to previous migration:
     -> flask db downgrade
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+how to process the bg task for sending email using rq worker with docker:
+    - build the current image :
+        -> docker build -t rest-apis-flask-python .
+    - run the rq worker :
+        -> docker run -w /app rest-apis-flask-python sh -c "rq worker -u REDIS_URL emails"
+        ->  docker run -w /app rest-apis-flask-python sh -c "rq worker -u rediss://red-chef7n67avja5mc06u1g:qS5X8TZBep4J8i96XAHsP3M79KpQbiBR@frankfurt-redis.render.com:6379 emails"
+    - run the app :
+        -> docker run -p 5000:80 rest-apis-flask-python
